@@ -6,39 +6,31 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
-
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetailsService;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests(authorizeRequests ->
                         authorizeRequests
-                                .requestMatchers("/conta/**").authenticated()  // Protege todos os endpoints sob /conta
-                                .anyRequest().permitAll()  // Permite todas as outras requisições
+                                .requestMatchers("/conta/**").hasRole("USER") // Restringe o acesso às rotas /conta/** para usuários com o papel USER
+                                .anyRequest().authenticated() // Exige autenticação para qualquer outra requisição
                 )
                 .formLogin(formLogin ->
                         formLogin
-                                .loginPage("/login")  // Configura a página de login personalizada
-                                .permitAll()  // Permite acesso à página de login
+                                .permitAll() // Permite o acesso à página de login padrão
                 )
                 .logout(logout ->
-                        logout
-                                .permitAll()  // Permite logout
-                );
-
+                        logout.permitAll() // Permite logout para todos
+                )
+                .csrf(csrf -> csrf.disable()); // Desativa CSRF; ajuste conforme necessário
         return http.build();
     }
 
@@ -51,6 +43,9 @@ public class SecurityConfig {
                         .build()
         );
     }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder(); // Usando BCrypt para codificação de senhas
+    }
 }
-
-
