@@ -201,20 +201,15 @@ public class ContaServiceImplTest {
         sb.append(String.join(",", line1)).append("\n");
         sb.append(String.join(",", line2)).append("\n");
 
-        // Mockar CSVReader
         CSVReader csvReaderMock = mock(CSVReader.class);
 
-        // Mockar MultipartFile
         MultipartFile fileMock = mock(MultipartFile.class);
         when(fileMock.getInputStream()).thenReturn(new ByteArrayInputStream(sb.toString().getBytes()));
 
 
-        // Criar instância do serviço
 
-        // Testar o método
         List<ContaDtoOut> contas = contaService.importarContas(fileMock);
 
-        // Validar resultados
         assertEquals(2, contas.size());
 
         ContaDtoOut conta1 = contas.get(0);
