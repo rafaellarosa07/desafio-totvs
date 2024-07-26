@@ -9,22 +9,11 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Date;
 
 @Entity
 @Table(name = "conta")
+@Data
 public class Conta {
-    public Conta() {
-    }
-
-    public Conta(int id, LocalDate dataVencimento, LocalDate dataPagamento, BigDecimal valor, String descricao, SituacaoEnum situacao) {
-        this.id = id;
-        this.dataVencimento = dataVencimento;
-        this.dataPagamento = dataPagamento;
-        this.valor = valor;
-        this.descricao = descricao;
-        this.situacao = situacao;
-    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -48,51 +37,5 @@ public class Conta {
     @Enumerated(EnumType.STRING)
     private SituacaoEnum situacao;
 
-    public int getId() {
-        return id;
-    }
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public LocalDate getDataVencimento() {
-        return dataVencimento;
-    }
-
-    public void setDataVencimento(LocalDate dataVencimento) {
-        this.dataVencimento = dataVencimento;
-    }
-
-    public LocalDate getDataPagamento() {
-        return dataPagamento;
-    }
-
-    public void setDataPagamento(LocalDate dataPagamento) {
-        this.dataPagamento = dataPagamento;
-    }
-
-    public BigDecimal getValor() {
-        return valor;
-    }
-
-    public void setValor(BigDecimal valor) {
-        this.valor = valor;
-    }
-
-    public String getDescricao() {
-        return descricao;
-    }
-
-    public void setDescricao(String descricao) {
-        this.descricao = descricao;
-    }
-
-    public SituacaoEnum getSituacao() {
-        return situacao;
-    }
-
-    public void setSituacao(SituacaoEnum situacao) {
-        this.situacao = situacao;
-    }
 }

@@ -1,5 +1,8 @@
 package com.totvs.application;
 
+import com.opencsv.CSVReader;
+import com.opencsv.exceptions.CsvException;
+import com.opencsv.exceptions.CsvValidationException;
 import com.totvs.application.interfaces.ContaService;
 import com.totvs.common.message.MessageUtil;
 import com.totvs.domain.Conta;
@@ -20,16 +23,22 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -178,5 +187,46 @@ public class ContaServiceImplTest {
         Double result = contaService.getValorTotalPagoPeriodo(LocalDate.now().minusDays(10), LocalDate.now());
 
         assertThat(result).isEqualTo(200.0);
+    }
+
+    @Test
+    public void testImportarContas() throws IOException, CsvException, CsvValidationException {
+        // Criar dados de teste
+        String[] header = {"dataVencimento", "dataPagamento", "valor", "descricao", "situacao"};
+        String[] line1 = {"2024-07-01", "2024-07-02", "100.00", "Descrição 1", "NAO_PAGO"};
+        String[] line2 = {"2024-08-01", "", "200.00", "Descrição 2", "PAGO"};
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.join(",", header)).append("\n");
+        sb.append(String.join(",", line1)).append("\n");
+        sb.append(String.join(",", line2)).append("\n");
+
+        // Mockar CSVReader
+        CSVReader csvReaderMock = mock(CSVReader.class);
+
+        // Mockar MultipartFile
+        MultipartFile fileMock = mock(MultipartFile.class);
+        when(fileMock.getInputStream()).thenReturn(new ByteArrayInputStream(sb.toString().getBytes()));
+
+
+        // Criar instância do serviço
+
+        // Testar o método
+        List<ContaDtoOut> contas = contaService.importarContas(fileMock);
+
+        // Validar resultados
+        assertEquals(2, contas.size());
+
+        ContaDtoOut conta1 = contas.get(0);
+        assertEquals(LocalDate.of(2024, 7, 1), conta1.dataVencimento());
+        assertEquals(LocalDate.of(2024, 7, 2), conta1.dataPagamento());
+        assertEquals("Descrição 1", conta1.descricao());
+        assertEquals(SituacaoEnum.NAO_PAGO, conta1.situacao());
+
+        ContaDtoOut conta2 = contas.get(1);
+        assertEquals(LocalDate.of(2024, 8, 1), conta2.dataVencimento());
+        assertEquals(null, conta2.dataPagamento());
+        assertEquals("Descrição 2", conta2.descricao());
+        assertEquals(SituacaoEnum.PAGO, conta2.situacao());
     }
 }

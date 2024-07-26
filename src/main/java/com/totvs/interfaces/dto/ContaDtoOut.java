@@ -8,7 +8,7 @@ import org.springframework.util.ObjectUtils;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-public record ContaDtoOut(int id, LocalDate dataVencimento, LocalDate dataPagamento, BigDecimal valor,
+public record ContaDtoOut(Integer id, LocalDate dataVencimento, LocalDate dataPagamento, BigDecimal valor,
                           String descricao, SituacaoEnum situacao) {
 
 

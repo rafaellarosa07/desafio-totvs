@@ -1,6 +1,7 @@
 package com.totvs.interfaces.controllers;
 
 
+import com.opencsv.exceptions.CsvException;
 import com.totvs.application.interfaces.ContaService;
 import com.totvs.domain.enums.SituacaoEnum;
 import com.totvs.interfaces.dto.ContaDtoIn;
@@ -16,8 +17,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @RequestMapping("conta")
@@ -129,6 +133,16 @@ public class ContaController {
             return new ResponseEntity<>(totalPago, HttpStatus.OK);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/importar")
+    public ResponseEntity<?> importarContas(@RequestPart("file") MultipartFile file) {
+        try {
+            var contas = contaService.importarContas(file);
+            return ResponseEntity.ok(contas);
+        } catch (IOException | CsvException e) {
+            return ResponseEntity.status(500).body(e.getMessage()); // Pode ser melhorado para fornecer mais informações sobre o erro
         }
     }
 }

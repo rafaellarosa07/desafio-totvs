@@ -1,5 +1,7 @@
 package com.totvs.application;
 
+import com.opencsv.CSVReader;
+import com.opencsv.exceptions.CsvException;
 import com.totvs.application.interfaces.ContaService;
 import com.totvs.common.message.MessageUtil;
 import com.totvs.domain.Conta;
@@ -15,8 +17,14 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -97,4 +105,29 @@ public class ContaServiceImpl implements ContaService {
     public Double getValorTotalPagoPeriodo(LocalDate dataInicio, LocalDate dataFim) {
         return contaRepository.findTotalPagoNoPeriodo(dataInicio, dataFim);
     }
+
+    public List<ContaDtoOut> importarContas(MultipartFile file) throws IOException, CsvException {
+        List<ContaDtoOut> contas = new ArrayList<>();
+
+        try (CSVReader reader = new CSVReader(new InputStreamReader(file.getInputStream()))) {
+            // Skip header
+            reader.readNext();
+
+            String[] line;
+            while ((line = reader.readNext()) != null) {
+                LocalDate dataVencimento = LocalDate.parse(line[0]);
+                LocalDate dataPagamento = line[1].isEmpty() ? null : LocalDate.parse(line[1]);
+                BigDecimal valor = new BigDecimal(line[2]);
+                String descricao = line[3];
+                SituacaoEnum situacao = SituacaoEnum.valueOf(line[4]);
+
+                ContaDtoOut conta = new ContaDtoOut(null, dataVencimento, dataPagamento, valor, descricao, situacao);
+                contas.add(conta);
+            }
+        }
+
+        return contas;
+    }
+
+
 }
