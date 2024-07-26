@@ -51,6 +51,9 @@ O projeto está containerizado usando Docker. Para executar a aplicação e o ba
 
 Os endpoints da aplicação são protegidos e requerem autenticação. A página de login está disponível em `/login`.
 
+## Testes Unitários 
+Cobertura de 90% das classes
+
 ## Contribuições
 
 Contribuições são bem-vindas! Se você encontrar algum problema ou tiver sugestões para melhorias, sinta-se à vontade para abrir uma issue ou um pull request.
